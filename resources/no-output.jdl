@@ -1,0 +1,11 @@
+[
+Type          = "Job";
+JobType       = "Normal";
+BatchSystem	  = "sge";
+Executable    = "/bin/hostname";
+Arguments     = "-f";
+QueueName 	  = "ceta32";
+StdOutput     = "std.out";
+StdError      = "std.err";
+OutputSandboxBaseDestURI = "gsiftp://se-test.ceta-ciemat.es:2811/tmp";
+]

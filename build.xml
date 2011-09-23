@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="gridCake" default="info" basedir=".">
+    <property file="build.properties"></property>
+    	
+
+    <path id="classpath">
+        <fileset dir="lib">
+            <include name="*.jar" />
+        </fileset>
+    </path>
+
+    <!-- ================ IMED-ALAYER INFO ========================== -->
+    <target name="info">
+        <echo>
+-------------------------------------------
+   gridCake ${version.number}
+-------------------------------------------
+prepare     - Prepares environment for compilation
+build       - Compiles sources and generates the jar
+dist        - Generates distributable package
+clean       - Deletes previously generated files under build/ and dist/
+javadoc     - Generates javadoc files from sources and places it under dist/
+test        - Executes all unit tests, and saves the reports in build/test-reports
+        </echo>
+    </target>
+
+    <!-- ================ IMED-ALAYER PREPARE ========================== -->
+    <target name="prepare">
+
+        <mkdir dir="build"></mkdir>
+        <mkdir dir="build/src"></mkdir>
+        <mkdir dir="build/classes"></mkdir>
+        <mkdir dir="build/test-classes"></mkdir>
+        <mkdir dir="build/lib"></mkdir>
+        <mkdir dir="build/javadoc"></mkdir>
+        <mkdir dir="build/test"></mkdir>
+        <mkdir dir="dist"></mkdir>
+        <mkdir dir="dist/javadoc"></mkdir>
+
+        <copy todir="build/src" filtering="yes">
+            <fileset dir="src"/>
+        </copy>
+
+        <copy todir="build/test" filtering="yes">
+            <fileset dir="test"/>
+        </copy>
+
+        <copy todir="build/lib" filtering="yes">
+            <fileset dir="lib"/>
+        </copy>
+    </target>
+
+    <target name="clean">
+        <delete dir="dist" quiet="true"></delete>
+        <delete dir="build" quiet="true"></delete>
+    </target>
+
+     <target name="build" depends="prepare"> 
+        <javac srcdir="build/src" destdir="build/classes" debug="on" deprecation="on" optimize="on">
+            <classpath>
+                <path refid="classpath"></path>
+                <pathelement location="build/src"></pathelement>
+            </classpath>
+        </javac>
+
+        <pathconvert property="mf.class-path" pathsep=" ">
+            <path refid="classpath"></path>
+            <chainedmapper>
+                <flattenmapper></flattenmapper>
+                <globmapper from="*" to="lib/*"></globmapper>
+            </chainedmapper>
+        </pathconvert>
+
+        <echo file="build/manifest.mf">Manifest-Version: 1.0</echo>
+        <jar jarfile="build/gridcake-${version.number}.jar">
+            <manifest>
+                <attribute name="Class-Path" value="${mf.class-path}"></attribute>
+            </manifest>
+            <fileset dir="build/classes" includes="**/*.class"></fileset>
+        </jar>
+    </target>
+
+
+    <target name="javadoc" depends="build">
+        <javadoc destdir="build/javadoc" author="true" version="true" use="true" windowtitle="gridCake Javadoc" useexternalfile="true">
+            <fileset dir="build/src" defaultexcludes="yes">
+                <include name="**/*.java"></include>
+            </fileset>
+
+            <doctitle><![CDATA[<h1>gridcake-${version.number}</h1>]]></doctitle>
+            <bottom><![CDATA[<i>Cesar Suarez Ortega</i>]]></bottom>
+
+            <classpath>
+                <path refid="classpath"></path>
+                <pathelement location="build/src"></pathelement>
+            </classpath>
+        </javadoc>
+    </target>
+
+    <target name="dist" depends="javadoc">
+        <copy todir="dist" filtering="yes">
+            <fileset dir="build">
+                <include name="lib/**"></include>
+            </fileset>
+        </copy>
+
+        <copy todir="dist" filtering="yes">
+            <fileset dir="build">
+                <include name="gridcake-${version.number}.jar"></include>
+            </fileset>
+        </copy>
+
+        <copy todir="dist/javadoc" filtering="yes">
+            <fileset dir="build/javadoc"/>
+        </copy>
+
+        <copy todir="dist" filtering="yes">
+            <fileset dir=".">
+                <include name="README"></include>
+            </fileset>
+        </copy>
+
+        <tar destfile="dist/gridcake-${version.number}.tar.gz" basedir="dist" compression="gzip" longfile="gnu"/>
+
+    </target>
+
+    <!--  -->
+    <target name="test-build" depends="build"> 
+
+        <path id="test-classpath">
+            <fileset dir="lib">
+                <include name="*.jar" />
+            </fileset>
+            <fileset dir="build">
+                <include name="gridcake-${version.number}.jar" />
+            </fileset>
+        </path>
+
+        <javac srcdir="build/test" destdir="build/test-classes" debug="on" deprecation="on" optimize="on">
+            <classpath>
+                <path refid="test-classpath"></path>
+                <pathelement location="build/test"></pathelement>
+            </classpath>
+        </javac>
+
+         <pathconvert property="mf.test-class-path" pathsep=" ">
+            <path refid="test-classpath"></path>
+            <identitymapper/>
+        </pathconvert> 
+
+        <jar jarfile="build/gridcakeTest-${version.number}.jar">
+            <manifest>
+                <attribute name="Class-Path" value="${mf.test-class-path}"></attribute>
+            </manifest>
+            <fileset dir="build/test-classes" includes="**/*.class"></fileset>
+        </jar>
+    </target>
+
+    <target name="test" depends="test-build">
+
+        <path id="test-classpath">
+            <fileset dir="lib">
+                <include name="*.jar" />
+            </fileset>
+            <fileset dir="build">
+                <include name="gridcake-${version.number}.jar" />
+            </fileset>
+        </path>
+
+        <mkdir dir="build/test-reports" />
+        <junit>
+            <classpath>
+                <path refid="test-classpath" />
+                <pathelement location="build/gridcakeTest-${version.number}.jar"/>
+            </classpath>
+            <formatter type="brief" usefile="false" />
+            <test name="org.glite.gridcake.cream.JDLCREAMUtilsTest" haltonfailure="off" outfile="build/test-reports/JDLCREAMUtilsTest">
+                <formatter type="plain"/>
+            </test>       
+        </junit>
+    </target>
+    
+
+</project>
