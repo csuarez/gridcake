@@ -117,7 +117,8 @@ test        - Executes all unit tests, and saves the reports in build/test-repor
 
         <copy todir="dist" filtering="yes">
             <fileset dir=".">
-                <include name="README"></include>
+                <include name="README"/>
+                <include name="LICENSE"/>
             </fileset>
         </copy>
 
