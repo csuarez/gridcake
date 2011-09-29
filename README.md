@@ -4,7 +4,8 @@ README
 What is this?
 -----------------
 
-gridCake is a simple Java library to work with gLite 3.2. griCake can interact with this services:
+gridCake is a simple Java library to work with gLite 3.2. gridCake can interact with this services:
+
 * *VOMS*
 * *MyProxy*
 * *CREAM*
